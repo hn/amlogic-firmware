@@ -1,0 +1,95 @@
+#
+# Amlogic AVOS Firmware Update File IMG Format Reverse Engineered, V1.04
+#
+# (C) 2012 Hajo Noerenberg
+#
+# http://www.noerenberg.de/
+# https://github.com/hn/amlogic-firmware
+#
+#
+# Amlogic SoC's are used in various multimedia products, e.g.
+# the Motorola LS1000 photo frame, Kodak Pulse photo frame,
+# RAmos media player, Philips PicoPix Pocket Projector, ...
+#
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3.0 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program. If not, see <http://www.gnu.org/licenses/gpl-3.0.txt>.
+#
+
+Example data for:
+Kodak_FW__Fuller.img ("2010.09.06"), 15490803 bytes, md5sum 5b254a3080e584cf7f116e61705f06ad,
+http://download.kodak.com/digital/software/pictureFrame/autoupdate_test/2010_09_06/Kodak_FW__Fuller.img
+
+
+Offset           Content  Description
+
+0x00000000 (   ) 4D49     Magic ("MI" => "IM" => "IMage") ?
+0x00000004 (   ) ........ checksum ?
+0x0000000A (   ) 0400     Number of "partition table" entries LE (0x0004 = 4)
+
+# Partition table entry: 0xC + 0x4C * number
+
+0x0000000C (+ 0) 5C630000 partition 00 length LE (0x0000635C = 25436)
+0x00000010 (+ 4) ........ partition 00 checksum ?
+0x00000014 (+ 8) 20020000 partition 00 offset LE (0x00000220 = 544)
+0x00000018 (+12) 00000000 partition 00 number LE (0x00000000 = 0)
+
+0x00000058 (+ 0) 21C13900 partition 01 length LE (0x0039C121 = 3784993)
+0x0000005C (+ 4) ........ partition 01 checksum ?
+0x00000060 (+ 8) 7C650000 partition 01 offset LE (0x0000657C = 25980)
+0x00000064 (+12) 01000000 partition 01 number LE (0x00000001 = 1)
+0x00000078 (+32) ........ partition 01 description ("2010.09.06")
+
+0x000000A4 (+ 0) F0DC1700 partition 02 length LE (0x0017DCF0 = 1563888)
+0x000000A8 (+ 4) ........ partition 02 checksum ?
+0x000000AC (+ 8) 9D263A00 partition 02 offset LE (0x003A269D = 3810973)
+0x000000B0 (+12) 02000000 partition 02 number LE (0x00000002 = 2)
+0x000000C4 (+32) ........ partition 02 description ("2010.09.06")
+
+0x000000F0 (+ 0) 665B9A00 partition 03 length LE (0x009A5B66 = 10115942)
+0x000000F4 (+ 4) ........ partition 03 checksum ?
+0x000000F8 (+ 8) 8D035200 partition 03 offset LE (0x0052038D = 5374861)
+0x000000FC (+12) 03000000 partition 03 number LE (0x00000003 = 3)
+0x00000110 (+32) ........ partition 03 description ("2010.09.06")
+
+0x00000220 (   ) Start of partition 00 data (boot sector)
+0x0000657C (   ) Start of partition 01 data ("DATAFS00")
+0x003A269D (   ) Start of partition 02 data (" LMA" => "AML" => amlogic.com)
+0x0052038D (   ) Start of partition 03 data ("DATAFS00")
+
+#
+
+$ dd if=Kodak_FW__Fuller.img of=/tmp/kodak-p0 bs=1 skip=544     count=25436
+$ dd if=Kodak_FW__Fuller.img of=/tmp/kodak-p1 bs=1 skip=25980   count=3784993
+$ dd if=Kodak_FW__Fuller.img of=/tmp/kodak-p2 bs=1 skip=3810973 count=1563888
+$ dd if=Kodak_FW__Fuller.img of=/tmp/kodak-p3 bs=1 skip=5374861 count=10115942
+
+IMG files can be unpacked with amlogic-unpack-imgfile.pl.txt (https://github.com/hn/amlogic-firmware)
+
+AML files can be unpacked with amlogic-unpack-amlfile.pl.txt (https://github.com/hn/amlogic-firmware)
+
+DATAFS00 files can be unpacked with amlogic-unpack-datafs00.pl.txt (https://github.com/hn/amlogic-firmware)
+
+$ ./amlogic-unpack-imgfile.pl ./Kodak_FW__Fuller.img /tmp/Kodak_FW__Fuller
+$ ls -hs /tmp/Kodak_FW__Fuller
+total 15M
+ 28K partition-0  3.7M partition-1  1.5M partition-2  9.7M partition-3
+$ ./amlogic-unpack-datafs00.pl /tmp/Kodak_FW__Fuller/partition-1 /tmp/Kodak_FW__Fuller-p1/
+$ ls -hs /tmp/Kodak_FW__Fuller-p1/ | head -n5
+total 5.1M
+ 20K About.0.page
+4.0K aframes.res
+ 48K animation_logo_splash0001.JPG
+ 48K animation_logo_splash0002.JPG
+$ file /tmp/Kodak_FW__Fuller-p1/animation_logo_splash0001.JPG 
+/tmp/Kodak_FW__Fuller-p1/animation_logo_splash0001.JPG: JPEG image data, JFIF standard 1.02
+
